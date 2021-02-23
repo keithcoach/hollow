@@ -17,22 +17,16 @@ import ActiveConfigView from './ActiveConfigView.tsx';
   const [fieldEditData, setFieldEditData] = useState({});
 
   const handleCollectionConfig = (event: any) => {
-    console.log(event.target.classList[0]);
-    let text;
-    if (event.target.innerText === '+ Add New Collection') text = 'Add New Collection';
-    else if (event.target.classList[0] === 'contentBuilderSidebarTool') text = 'Add New Collection';
-    else text = event.target.innerText;
-    setActiveConfig(text);
+    setActiveConfig(event.target.innerText);
   };
 
   const handleFieldClick = (event: any) => {
-    console.log(event.target);
     if (fieldEditActive) {
       setFieldEditActive(false);
       setFieldEditData({});
-    } else if (event.target.nodeName === 'TD') {
-      console.log(event.target);
+    } else {
       setFieldEditActive(true);
+      console.log(event.target);
       const data: any = {};
       const name = event.target.parentElement.children[0].textContent;
       const type = event.target.parentElement.children[1].textContent;
@@ -103,7 +97,6 @@ import ActiveConfigView from './ActiveConfigView.tsx';
         handleActiveChange={handleActiveChange} 
         activeConfigFields={activeConfigFields}
         fieldEditData={fieldEditData}
-        activeConfig={activeConfig}
       />
     </div>
   );

@@ -126,7 +126,7 @@ tableController.deleteTableByName = async (ctx: any, next: Function) => {
 
 tableController.renameTable = async (ctx: any, next: any) => {
   const table = ctx.params.name;
-  const { value } = await ctx.request.body({ type: 'json' });
+  const { value } = await ctx.request.body();
   const newName: string = Object.values(await value).toString();
   const text = `ALTER TABLE IF EXISTS ${table} RENAME TO ${newName};`;
 
@@ -142,9 +142,10 @@ tableController.renameTable = async (ctx: any, next: any) => {
 
 tableController.addColumn = async (ctx: any, next: any) => {
   const table = ctx.params.name;
-  const { value } = await ctx.request.body({ type: 'json' });
-  const { data_type, column_name } = await value;
-  const text = `ALTER TABLE ${table} ADD COLUMN ${column_name} ${data_type};`;
+  const { value } = await ctx.request.body();
+  const dataType: any = Object.keys(await value).toString();
+  const newColumn: string = Object.values(await value).toString();
+  const text = `ALTER TABLE ${table} ADD COLUMN ${newColumn} ${dataType};`;
   //query if more than one column is added at a time
   //const dataType: any = Object.keys(await value).toString();
   //const newColumn: string = Object.values(await value).toString();
@@ -165,7 +166,8 @@ tableController.addColumn = async (ctx: any, next: any) => {
 
 tableController.deleteColumn = async (ctx: any, next: any) => {
   const table = ctx.params.name;
-  const columnName = ctx.params.fieldName;
+  const { value } = await ctx.request.body();
+  const delColumn: string = Object.values(await value).toString();
 
   //query if more than one column is deleted at a time
   //const delColumnsArray: string = Object.values(await value)
@@ -174,7 +176,7 @@ tableController.deleteColumn = async (ctx: any, next: any) => {
   // i === delColumnsArray.length-1 ? queryString += `${delColumnsArray[i]}`: queryString += `${delColumnsArray[i]}, `;
   // }
   //const text: string = `ALTER TABLE ${table} ${queryString};`
-  const text = `ALTER TABLE ${table} DROP COLUMN IF EXISTS ${columnName};`;
+  const text = `ALTER TABLE ${table} DROP COLUMN IF EXISTS ${delColumn};`;
 
   try {
     const result = await runQuery(text);
@@ -188,11 +190,11 @@ tableController.deleteColumn = async (ctx: any, next: any) => {
 tableController.renameColumn = async (ctx: any, next: any) => {
   const table = ctx.params.name;
   const { value } = await ctx.request.body();
-  const { column_name, data_type } = await value;
-  
-  const text = `ALTER TABLE ${table} RENAME COLUMN ${ctx.params.fieldName} TO ${column_name};`;
-  const typeText = `ALTER TABLE ${table}
-  ALTER COLUMN ${column_name} TYPE ${data_type} USING ${column_name}::${data_type};`;
+
+  const newColumnName: any = Object.values(await value).toString();
+
+  const text = `ALTER TABLE ${table} RENAME COLUMN ${ctx.params.fieldName} TO ${newColumnName};`;
+
   //query rename more than one column at a time
   //const oldColumn: [] = Object.values(await value)
   //const newColumn: [] = Object.values(await value);
@@ -201,10 +203,8 @@ tableController.renameColumn = async (ctx: any, next: any) => {
   //   text += `ALTER TABLE ${table} RENAME COLUMN ${oldColumn[i]} TO ${newColumn[i]}; `;
   //
   try {
-    if(ctx.params.fieldName !== column_name){
-      await runQuery(text);
-    }
-    await runQuery(typeText);
+    const result = await runQuery(text);
+
     return await next();
   } catch (err) {
     throw err;
@@ -276,7 +276,7 @@ tableController.updateRow = async (ctx: any, next: any) => {
 
   const { value } = await ctx.request.body({ type: 'json' });
   const entries = Object.entries(await value);
-  console.log({entries})
+
   const bodyKeys: string[] = Object.keys(await value);
   const bodyVals: string[] = Object.values(await value);
 
@@ -287,7 +287,7 @@ tableController.updateRow = async (ctx: any, next: any) => {
   }
 
   const text = `UPDATE ${table} SET ${set} WHERE id = ${ctx.params.id} RETURNING *;`;
-  console.log({text})
+
   try {
     const result = await runQuery(text, bodyVals);
     ctx.state.row = result.rows[0];

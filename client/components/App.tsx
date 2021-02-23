@@ -97,7 +97,6 @@ const App = () => {
       default:
         setView('collection');
         setActiveItem(active);
-        refreshCollections();
     }
   };
 
