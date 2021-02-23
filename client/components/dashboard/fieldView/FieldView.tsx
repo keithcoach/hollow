@@ -18,6 +18,7 @@ const FieldView = ({
   const [activeEntryValues, setActiveEntryValues] = useState({});
   const [newId, setNewId] = useState(0);
 
+
   // TODO:
   // add handlers to check for correct data type on edit of field values
 
